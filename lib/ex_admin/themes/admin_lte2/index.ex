@@ -122,7 +122,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     |> Enum.reverse
   end
 
-  def batch_action_form(_conn, enabled?, scopes, name, _scope_counts, fun) do
+  def batch_action_form(conn, enabled?, scopes, name, scope_counts, fun) do
     msg = gettext "Are you sure you want to delete these %{name}? You wont be able to undo this.", name: name
     scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
     if enabled? or scopes != [] do
@@ -145,6 +145,27 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
                   ul ".dropdown_menu_list" do
                     li do
                       a ".batch_action " <> (gettext "Delete Selected"), href: "#", "data-action": :destroy, "data-confirm": msg
+                    end
+                  end
+                end
+              end
+            end
+			if scopes != [] do
+              current_scope = ExAdmin.Query.get_scope scopes, conn.params["scope"]
+              ul ".scopes.table_tools_segmented_control", style: "width: calc((100% - 10px) - 108px); float: right;" do
+                order_segment = case conn.params["order"] do
+                  nil -> ""
+                  order -> "&order=#{order}"
+                end
+                for {name, _opts} <- scopes do
+                  count = scope_counts[name]
+                  selected = if "#{name}" == "#{current_scope}", do: ".selected", else: ""
+                  li ".scope.#{name}#{selected}" do
+                    href = admin_resource_path(conn, :index, [[scope: name]])
+                    |> build_filter_href(conn.params["q"])
+                    a ".table_tools_button.btn-sm.btn.btn-default", href: href <> order_segment do
+                      text ExAdmin.Utils.humanize("#{name} ")
+                      span ".badge.bg-blue #{count}"
                     end
                   end
                 end

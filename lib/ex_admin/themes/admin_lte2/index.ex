@@ -144,7 +144,10 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
                   div ".dropdown_menu_nipple"
                   ul ".dropdown_menu_list" do
                     li do
-                      a ".batch_action " <> (gettext "Delete Selected"), href: "#", "data-action": :destroy, "data-confirm": msg
+                      case name do
+							"participants" -> a ".batch_action " <> (gettext "Mark Bots"), href: "#", "data-action": :mark_bots, "data-confirm": "Are you sure you want to mark the selected Participants as Bots?"
+							_ -> a ".batch_action " <> (gettext "Delete Selected"), href: "#", "data-action": :destroy, "data-confirm": msg 
+						end
                     end
                   end
                 end

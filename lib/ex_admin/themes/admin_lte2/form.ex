@@ -206,7 +206,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
         end
 
         for field <- fields do
-          f_name = field[:opts][:label] ||field[:name]
+          f_name = field[:name]
           required = if f_name in required_list, do: true, else: false
           type = field[:opts][:type] || :text
           name = "#{base_name}[#{f_name}]"
@@ -229,6 +229,25 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                         true ->
                           option "#{opt}", [value: escape_value(opt)]
                       end
+                    end
+                  end
+                  build_errors(errors, field[:opts][:hint])
+                end
+              end
+            %{type: :checkbox} ->
+              div ".form-group", id: "#{ext_name}_#{f_name}_input"  do                
+                div ".col-sm-offset-2.#{error}" do
+                  div ".checkbox" do
+                    checked = case Map.get(res, f_name) do
+                      true -> [checked: true]
+                      "true" -> [checked: true]
+                      _ -> []
+                    end
+                    Xain.input([type: :hidden, value: "false", name: name])
+                    label for: "#{ext_name}_#{f_name}" do
+                      Xain.input([type: :checkbox, id: "#{ext_name}_#{f_name}",
+                    name: name, value: "true"] ++ checked)
+                      text humanize(f_name)
                     end
                   end
                   build_errors(errors, field[:opts][:hint])

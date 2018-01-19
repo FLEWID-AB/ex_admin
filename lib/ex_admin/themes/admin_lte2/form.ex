@@ -212,10 +212,19 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
           name = "#{base_name}[#{f_name}]"
           errors = get_errors(errors, String.to_atom("#{field_field_name}_#{orig_inx}_#{f_name}"))
           error = if errors in [nil, [], false], do: "", else: ".has-error"
+          
+          group_class = case Map.get(field[:opts], :class) do
+            nil -> [".form-group"]
+            class -> 
+              classes = String.split(class, " ", trim: true)
+              [".form-group"] ++ classes
+          end
+          |> Enum.join(".")
+
           case field[:opts] do
             %{collection: collection} ->
               collection = if is_function(collection), do: collection.(conn, res), else: collection
-              div ".form-group", [id: "#{ext_name}_label_input"] do
+              div group_class, [id: "#{ext_name}_label_input"] do
                 label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)
                   required_abbr required
@@ -235,7 +244,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                 end
               end
             %{type: :checkbox} ->
-              div ".form-group", id: "#{ext_name}_#{f_name}_input"  do                
+              div group_class, id: "#{ext_name}_#{f_name}_input"  do                
                 div ".col-sm-offset-2.#{error}" do
                   div ".checkbox" do
                     checked = case Map.get(res, f_name) do
@@ -259,7 +268,7 @@ defmodule ExAdmin.Theme.AdminLte2.Form do
                 true -> [value: Map.get(res, f_name, "") |> escape_value]
               end
 
-              div ".form-group", id: "#{ext_name}_#{f_name}_input"  do
+              div group_class, id: "#{ext_name}_#{f_name}_input"  do
                 label ".col-sm-2.control-label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)
                   required_abbr required

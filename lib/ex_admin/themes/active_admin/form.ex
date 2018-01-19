@@ -209,10 +209,15 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
           name = "#{base_name}[#{f_name}]"
           errors = get_errors(errors, String.to_atom("#{field_field_name}_#{orig_inx}_#{f_name}"))
           error = if errors in [nil, [], false], do: "", else: ".error"
+          group_class = case Map.get(field[:opts], :class) do
+            nil -> []
+            class -> "." <> Enum.join(String.split(class, " ", trim: true), ".")
+          end
+
           case field[:opts] do
             %{collection: collection} ->
-              collection = if is_function(collection), do: collection.(conn, res), else: collection
-              li ".select.input#{error}", [id: "#{ext_name}_label_input"] do
+              collection = if is_function(collection), do: collection.(conn, res), else: collection              
+              li ".select.input#{error}#{group_class}", [id: "#{ext_name}_label_input"] do
                 label ".label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)
                   required_abbr required
@@ -229,7 +234,7 @@ defmodule ExAdmin.Theme.ActiveAdmin.Form do
                 build_errors(errors, field[:opts][:hint])
               end
             _ ->
-              li ".string.input.stringish#{error}", id: "#{ext_name}_#{f_name}_input"  do
+              li ".string.input.stringish#{error}#{group_class}", id: "#{ext_name}_#{f_name}_input"  do
                 label ".label", for: "#{ext_name}_#{f_name}" do
                   text humanize(f_name)
                   required_abbr required

@@ -143,11 +143,18 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
                 div ".dropdown_menu_list_wrapper", style: "display: none;" do
                   div ".dropdown_menu_nipple"
                   ul ".dropdown_menu_list" do
+                    # Add Excel Export Batch Action on ticket page (only fotografiska)
+                    if name == "tickets" do
+                      li do
+          							a ".batch_action " <> (gettext "Export to Excel"), href: "#", "data-action": :export_excel
+                      end
+                    end
                     li do
+                      # overwrite delete with mark bots if page = participants (only nike-raffle)
                       case name do
-							"participants" -> a ".batch_action " <> (gettext "Mark Bots"), href: "#", "data-action": :mark_bots, "data-confirm": "Are you sure you want to mark the selected Participants as Bots?"
-							_ -> a ".batch_action " <> (gettext "Delete Selected"), href: "#", "data-action": :destroy, "data-confirm": msg 
-						end
+          							"participants" -> a ".batch_action " <> (gettext "Mark Bots"), href: "#", "data-action": :mark_bots, "data-confirm": "Are you sure you want to mark the selected Participants as Bots?"
+          							_ -> a ".batch_action " <> (gettext "Delete Selected"), href: "#", "data-action": :destroy, "data-confirm": msg
+          						end
                     end
                   end
                 end

@@ -126,7 +126,7 @@ defmodule ExAdmin.Theme.AdminLte2.Index do
     msg = gettext "Are you sure you want to delete these %{name}? You wont be able to undo this.", name: name
     scopes = unless Application.get_env(:ex_admin, :scopes_index_page, true), do: [], else: scopes
     if enabled? or scopes != [] do
-      form "#collection_selection", action: "/admin/#{name}/batch_action", method: :post, "accept-charset": "UTF-8" do
+      form "#collection_selection", action: "/admin/#{name}/batch_action", name: "collection_selection_form", method: :post, "accept-charset": "UTF-8" do
         div style: "margin:0;padding:0;display:inline" do
           csrf = Plug.CSRFProtection.get_csrf_token
           input name: "utf8", type: :hidden, value: "✓"

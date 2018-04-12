@@ -54,7 +54,15 @@ defmodule ExAdmin.Filter do
           %Ecto.Association.BelongsTo{} = belongs_to -> belongs_to
           _ -> nil
         end
-      other -> other
+      other -> 
+        try do
+          case other.__enum_map__() do
+            nil -> other
+            _ -> :ecto_enum
+          end
+        rescue
+          UndefinedFunctionError -> other
+        end
     end
   end
 

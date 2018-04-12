@@ -140,6 +140,26 @@ defmodule ExAdmin.Theme.AdminLte2.Filter do
     end
   end
 
+  def build_field({name, :ecto_enum}, q, defn) do
+    id = "q_#{name}"
+    name_label = field_label(name, defn)
+    field = defn.resource_model.__schema__(:type, name)
+    selected_key = case q["#{name}_eq"] do
+      nil -> nil
+      val -> val
+    end
+    div ".form-group" do
+      label ".label #{name_label}", for: "q_#{name}"
+      select "##{id}.form-control", [name: "q[#{name}_eq]"] do
+        option "Any", value: ""
+        for {k, v} <- field.__enum_map__() do
+          selected = if "#{k}" == selected_key, do: [selected: :selected], else: []
+          option "#{k}", [{:value, "#{k}"} | selected]
+        end
+      end
+    end
+  end
+
   def build_field({name, :boolean}, q, defn) do
     name_label = field_label(name, defn)
     name_field = "#{name}_eq"

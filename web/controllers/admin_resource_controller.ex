@@ -11,14 +11,14 @@ defmodule ExAdmin.AdminResourceController do
     page = case conn.assigns[:page] do
       nil ->
         id = params |> Map.to_list
-        query = model.run_query(repo(), defn, :index, id)
+        query = model.run_query(repo(defn.resource_model), defn, :index, id)
         Authorization.authorize_query(conn.assigns.resource, conn, query, :index, id)
-        |> ExAdmin.Query.execute_query(repo(), :index, id)
+        |> ExAdmin.Query.execute_query(repo(defn.resource_model), :index, id)
 
       page ->
         page
     end
-    scope_counts = model.run_query_counts repo(), defn, :index, params |> Map.to_list
+    scope_counts = model.run_query_counts repo(defn.resource_model), defn, :index, params |> Map.to_list
 
     {conn, _params, page} = handle_after_filter(conn, :index, defn, params, page)
 
@@ -78,7 +78,7 @@ defmodule ExAdmin.AdminResourceController do
 
     changeset = apply(defn.resource_model, defn.create_changeset, [resource, params[defn.resource_name]])
 
-    case ExAdmin.Repo.insert(changeset) do
+    case ExAdmin.Repo.insert(changeset, defn.resource_model) do
       {:error, changeset} ->
         conn |> handle_changeset_error(defn, changeset, params)
       {:ok, resource} ->
@@ -93,7 +93,7 @@ defmodule ExAdmin.AdminResourceController do
     resource = conn.assigns.resource
 
     changeset = apply(defn.resource_model, defn.update_changeset, [resource, params[defn.resource_name]])
-    case ExAdmin.Repo.update(changeset) do
+    case ExAdmin.Repo.update(changeset, defn.resource_model) do
       {:error, changeset} ->
         conn |> handle_changeset_error(defn, changeset, params)
       {:ok, resource} ->
@@ -109,7 +109,7 @@ defmodule ExAdmin.AdminResourceController do
 
     resource = resource
     |> defn.resource_model.changeset(%{attr_name => attr_value})
-    |> repo().update!
+    |> repo(defn.resource_model).update!
 
     render conn, "toggle_attr.js", attr_name: attr_name, attr_value: Map.get(resource, attr_name_atom), id: ExAdmin.Schema.get_id(resource)
   end
@@ -118,14 +118,14 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
     resource = conn.assigns.resource
 
-    ExAdmin.Repo.delete(resource, params[defn.resource_name])
+    ExAdmin.Repo.delete(resource, params[defn.resource_name], defn.resource_model)
     page =
       case conn.assigns[:page] do
         nil ->
           id = params |> Map.to_list
-          query = model.run_query(repo(), defn, :index, id)
+          query = model.run_query(repo(defn.resource_model), defn, :index, id)
           Authorization.authorize_query(conn.assigns.resource, conn, query, :index, id)
-          |> ExAdmin.Query.execute_query(repo(), :index, id)
+          |> ExAdmin.Query.execute_query(repo(defn.resource_model), :index, id)
         page ->
           page
       end
@@ -167,7 +167,7 @@ defmodule ExAdmin.AdminResourceController do
     ids
     |> Enum.map(&(to_integer(type, &1)))
     |> Enum.each(fn(id) ->
-      repo().delete repo().get(resource_model, id)
+      repo(defn.resource_model).delete repo(defn.resource_model).get(resource_model, id)
     end)
 
     put_flash(conn, :notice, "#{count} #{pluralize params[:resource], count} "
@@ -189,9 +189,9 @@ defmodule ExAdmin.AdminResourceController do
     model = defn.__struct__
 
     id = params |> Map.to_list
-    query = model.run_query(repo(), defn, :csv, id)
+    query = model.run_query(repo(defn.resource_model), defn, :csv, id)
     csv = Authorization.authorize_query(conn.assigns.resource, conn, query, :csv, id)
-    |> ExAdmin.Query.execute_query(repo(), :csv, id)
+    |> ExAdmin.Query.execute_query(repo(defn.resource_model), :csv, id)
     |> case  do
       [] -> []
       resources ->

@@ -1,10 +1,10 @@
 defmodule ExAdmin.Model do
   import Ecto.Query
-  import ExAdmin.Repo, only: [repo: 0]
+  import ExAdmin.Repo, only: [repo: 1]
 
   def potential_associations_query(resource, assoc_defn_model, assoc_name, keywords \\ "") do
     current_assoc_ids = resource
-    |> repo().preload(assoc_name)
+    |> repo(resource).preload(assoc_name)
     |> Map.get(assoc_name)
     |> Enum.map(&ExAdmin.Schema.get_id/1)
 

@@ -56,8 +56,8 @@ defmodule ExAdmin.Repo do
     end
   end
 
-  def delete(resource, _params, resource \\ nil) do
-    repo(resource).delete resource
+  def delete(resource, _params, mod \\ nil) do
+    repo(mod).delete resource
   end
 
   # V2

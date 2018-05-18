@@ -247,8 +247,9 @@ defmodule ExAdmin.Helpers do
   def get_resource_field(resource, field, opts \\ %{}) when is_map(resource) do
     opts = Enum.into opts, %{}
     case resource do
+      %{__struct__: Ecto.Association.NotLoaded} -> "Not loaded"
       %{__struct__: struct_name} ->
-        cond do
+        cond do          
           field in struct_name.__schema__(:fields) ->
             Map.get(resource, field)
           field in struct_name.__schema__(:associations) ->

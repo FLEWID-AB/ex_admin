@@ -7,11 +7,13 @@ defmodule ExAdmin.AdminResourceController do
 
   def index(conn, defn, params) do
     model = defn.__struct__
-
     page = case conn.assigns[:page] do
       nil ->
         id = params |> Map.to_list
-        query = model.run_query(repo(defn.resource_model), defn, :index, id)
+        query = case conn.assigns[:custom_query] do
+          nil -> model.run_query(repo(defn.resource_model), defn, :index, id)
+          q -> model.run_custom_query(q, repo(defn.resource_model), defn, :index, id)
+        end
         Authorization.authorize_query(conn.assigns.resource, conn, query, :index, id)
         |> ExAdmin.Query.execute_query(repo(defn.resource_model), :index, id)
 

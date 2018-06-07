@@ -217,6 +217,9 @@ defmodule ExAdmin.Register do
         |> Map.get(:resource_model)
         |> ExAdmin.Query.run_query(repo, defn, action, id, @query)
       end
+      def run_custom_query(query, repo, defn, action, id \\ nil) do
+        ExAdmin.Query.run_query(query, repo, defn, action, id, @query)
+      end
       def run_query_counts(repo, defn, action, id \\ nil) do
         %__MODULE__{}
         |> Map.get(:resource_model)
